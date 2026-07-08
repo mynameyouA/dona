@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import ContentSections from '@/components/ContentSections';
 import DonationSection from '@/components/DonationSection';
 
 export default function Home() {
@@ -22,6 +23,8 @@ export default function Home() {
       {/* Main Content */}
       <Hero />
       
+      <ContentSections />
+
       {/* Wave transition */}
       <div className="w-full h-24 bg-gradient-to-b from-transparent to-slate-50 relative z-20 -mt-24"></div>
 

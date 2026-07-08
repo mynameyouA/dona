@@ -1,9 +1,13 @@
 'use client';
 
 import React, { useState } from 'react';
+import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { TreePine, ArrowRight, ShieldCheck } from 'lucide-react';
+import { ArrowRight, ShieldCheck } from 'lucide-react';
 import OnrampWidget from './OnrampWidget';
+
+// Dynamically import to prevent SSR issues with Three.js
+const TreeIcon3D = dynamic(() => import('./TreeIcon3D'), { ssr: false });
 
 export default function DonationSection() {
   const [tier, setTier] = useState(1); // 1 tree = $10
@@ -85,14 +89,14 @@ export default function DonationSection() {
                           setIsCustom(false);
                           setTier(t.count);
                         }}
-                        className={`relative p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 ${
+                        className={`relative p-4 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 overflow-hidden ${
                           isSelected 
                             ? 'bg-emerald-50 border-2 border-emerald-500 shadow-[inset_0_3px_6px_rgba(0,0,0,0.1)] transform translate-y-1' 
                             : 'bg-white border-2 border-slate-200 shadow-[0_6px_0_0_rgba(226,232,240,1)] hover:shadow-[0_8px_0_0_rgba(226,232,240,1)] hover:-translate-y-1'
                         }`}
                       >
-                        <TreePine className={`w-8 h-8 mb-2 ${isSelected ? 'text-emerald-600' : 'text-slate-400'}`} />
-                        <span className={`font-bold text-lg ${isSelected ? 'text-emerald-700' : 'text-slate-700'}`}>
+                        <TreeIcon3D isActive={isSelected} count={t.count} />
+                        <span className={`font-bold text-lg mt-2 ${isSelected ? 'text-emerald-700' : 'text-slate-700'}`}>
                           {t.count}
                         </span>
                         <span className={`text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-emerald-600/70' : 'text-slate-400'}`}>
