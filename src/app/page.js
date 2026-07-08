@@ -14,9 +14,9 @@ export default function Home() {
           <span className="text-2xl font-extrabold text-white tracking-tight drop-shadow-md">OxyTerra</span>
         </div>
         <nav className="hidden md:flex space-x-8 bg-white/10 backdrop-blur-md px-8 py-3 rounded-full border border-white/20">
-          <a href="#" className="text-white hover:text-emerald-300 font-bold transition-colors">Mission</a>
-          <a href="#" className="text-white hover:text-emerald-300 font-bold transition-colors">Impact</a>
-          <a href="#" className="text-white hover:text-emerald-300 font-bold transition-colors">Transparency</a>
+          <a href="#mission" className="text-white hover:text-emerald-300 font-bold transition-colors">Mission</a>
+          <a href="#impact" className="text-white hover:text-emerald-300 font-bold transition-colors">Impact</a>
+          <a href="#transparency" className="text-white hover:text-emerald-300 font-bold transition-colors">Transparency</a>
         </nav>
       </header>
 

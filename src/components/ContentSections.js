@@ -13,7 +13,7 @@ export default function ContentSections() {
   return (
     <div className="relative z-10 bg-slate-50">
       {/* Mission Section */}
-      <section className="py-24 px-6 lg:px-8 border-b border-slate-200">
+      <section id="mission" className="py-24 px-6 lg:px-8 border-b border-slate-200">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
@@ -56,8 +56,49 @@ export default function ContentSections() {
         </div>
       </section>
 
-      {/* How It Works Section */}
-      <section className="py-24 px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
+      {/* Impact Section */}
+      <section id="impact" className="py-24 px-6 lg:px-8 bg-emerald-900 text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1441974231531-c6227db76b6e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')] bg-cover bg-center opacity-20 mix-blend-overlay"></div>
+        <div className="max-w-6xl mx-auto relative z-10">
+          <motion.div 
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeIn}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl font-extrabold mb-4">Our Global Impact</h2>
+            <p className="text-lg text-emerald-100 max-w-2xl mx-auto">Together, we are transforming barren landscapes into thriving ecosystems.</p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            {[
+              { stat: "742K+", label: "Trees Planted" },
+              { stat: "15,000", label: "Tons CO2 Offset" },
+              { stat: "3,200", label: "Local Farmers Employed" },
+              { stat: "12", label: "Countries Active" }
+            ].map((item, idx) => (
+              <motion.div 
+                key={idx}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={{
+                  hidden: { opacity: 0, scale: 0.5 },
+                  visible: { opacity: 1, scale: 1, transition: { delay: idx * 0.1, duration: 0.5 } }
+                }}
+                className="p-6 glass-panel-dark rounded-3xl border border-emerald-500/30 bg-emerald-800/40"
+              >
+                <div className="text-4xl md:text-5xl font-extrabold text-emerald-300 mb-2">{item.stat}</div>
+                <div className="text-sm font-bold uppercase tracking-wider text-emerald-100/70">{item.label}</div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Transparency / How It Works Section */}
+      <section id="transparency" className="py-24 px-6 lg:px-8 bg-slate-900 text-white relative overflow-hidden">
         {/* Background decorative blob */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-emerald-500/10 rounded-full blur-[120px] pointer-events-none"></div>
         
@@ -69,8 +110,8 @@ export default function ContentSections() {
             variants={fadeIn}
             className="text-center mb-16"
           >
-            <h2 className="text-4xl font-extrabold mb-4">How Your Donation Works</h2>
-            <p className="text-lg text-slate-400">Total transparency from your wallet to the soil.</p>
+            <h2 className="text-4xl font-extrabold mb-4">100% Financial Transparency</h2>
+            <p className="text-lg text-slate-400">See exactly how your funds travel from your wallet to the soil.</p>
           </motion.div>
 
           <div className="grid md:grid-cols-3 gap-12 relative">
