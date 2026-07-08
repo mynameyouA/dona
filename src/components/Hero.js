@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { TreePine, Sprout, Leaf } from 'lucide-react';
+
+const Planet3D = dynamic(() => import('./Planet3D'), { ssr: false });
 
 export default function Hero() {
   const containerVariants = {
@@ -69,54 +72,13 @@ export default function Hero() {
             </motion.div>
           </div>
 
-          {/* 3D Floating Glass Card */}
+          {/* 3D Model Container */}
           <motion.div 
             variants={itemVariants}
-            className="hidden lg:block relative"
+            className="relative lg:h-[600px] w-full flex items-center justify-center"
           >
-            <motion.div 
-              animate={{ y: [0, -15, 0] }}
-              transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-              className="glass-panel-dark p-8 rounded-3xl relative z-10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <div>
-                  <p className="text-emerald-400 font-bold text-sm uppercase tracking-wider mb-1">Impact Goal</p>
-                  <h3 className="text-3xl font-extrabold text-white">1,000,000 Trees</h3>
-                </div>
-                <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
-                  <Leaf className="w-8 h-8 text-emerald-400" />
-                </div>
-              </div>
-              
-              <div className="mb-4">
-                <div className="flex justify-between text-sm font-medium text-slate-300 mb-2">
-                  <span>Planted so far</span>
-                  <span className="text-white">742,050</span>
-                </div>
-                <div className="w-full bg-slate-800 rounded-full h-3 inner-shadow">
-                  <motion.div 
-                    initial={{ width: 0 }}
-                    animate={{ width: "74%" }}
-                    transition={{ duration: 1.5, delay: 0.5 }}
-                    className="bg-gradient-to-r from-emerald-500 to-green-400 h-3 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.5)]"
-                  ></motion.div>
-                </div>
-              </div>
-            </motion.div>
-
-            {/* Decorative elements */}
-            <motion.div 
-              animate={{ y: [0, 20, 0], rotate: [0, 5, 0] }}
-              transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-10 -left-10 glass-panel p-4 rounded-2xl z-20 flex items-center space-x-3"
-            >
-              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold">CNY</div>
-              <div>
-                <p className="text-xs text-slate-500 font-bold uppercase">Supported</p>
-                <p className="font-bold text-slate-800">Alipay & WeChat</p>
-              </div>
-            </motion.div>
+            <div className="absolute inset-0 bg-emerald-500/10 rounded-full blur-[100px]"></div>
+            <Planet3D />
           </motion.div>
 
         </div>
