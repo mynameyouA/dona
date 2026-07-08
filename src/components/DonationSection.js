@@ -2,16 +2,19 @@
 
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
-import { motion } from 'framer-motion';
-import { ArrowRight, ShieldCheck } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info } from 'lucide-react';
+import { QRCodeSVG } from 'qrcode.react';
 
 // Dynamically import to prevent SSR issues with Three.js
 const TreeIcon3D = dynamic(() => import('./TreeIcon3D'), { ssr: false });
 
 export default function DonationSection() {
-  const [tier, setTier] = useState(1); // 1 tree = $10
+  const [tier, setTier] = useState(1);
   const [isCustom, setIsCustom] = useState(false);
   const [customAmount, setCustomAmount] = useState(50);
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [copied, setCopied] = useState(false);
   
   const WALLET_ADDRESS = "0x52b4483e30243a65212adb16d993627534e61d6d";
   const TREE_PRICE = 10;
@@ -20,10 +23,14 @@ export default function DonationSection() {
 
   const handleDonateClick = () => {
     if (currentAmount && Number(currentAmount) >= TREE_PRICE) {
-      // We open Transak in a new tab with pre-filled parameters.
-      const transakUrl = `https://global.transak.com/?cryptoCurrencyCode=USDT&network=polygon&fiatCurrency=CNY&walletAddress=${WALLET_ADDRESS}`;
-      window.open(transakUrl, '_blank');
+      setShowQRModal(true);
     }
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(WALLET_ADDRESS);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const presetTiers = [
@@ -53,7 +60,6 @@ export default function DonationSection() {
             className="text-lg text-slate-600 max-w-2xl mx-auto font-medium"
           >
             Every $10 donated plants one native tree in areas affected by deforestation. 
-            We accept global payments instantly.
           </motion.p>
         </div>
 
@@ -128,18 +134,6 @@ export default function DonationSection() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-5 bg-slate-800 rounded-2xl mb-8">
-            <div className="flex items-center space-x-4">
-              <div className="p-2 bg-emerald-500/20 rounded-xl">
-                <ShieldCheck className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-white font-bold text-sm">Secure Global Payment</p>
-                <p className="text-slate-400 text-xs mt-0.5">Alipay, WeChat Pay, Visa, Mastercard via Transak</p>
-              </div>
-            </div>
-          </div>
-
           <button
             onClick={handleDonateClick}
             disabled={!currentAmount || Number(currentAmount) < TREE_PRICE}
@@ -150,6 +144,72 @@ export default function DonationSection() {
           </button>
         </motion.div>
       </div>
+
+      {/* Web3 QR Payment Modal */}
+      <AnimatePresence>
+        {showQRModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowQRModal(false)}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+            ></motion.div>
+            
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-slate-100"
+            >
+              <button 
+                onClick={() => setShowQRModal(false)}
+                className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              <div className="p-8 text-center border-b border-slate-100">
+                <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Web3 Transfer</h3>
+                <p className="text-slate-500 font-medium text-sm">Direct, secure, and 100% transparent.</p>
+              </div>
+
+              <div className="p-8 bg-slate-50 flex flex-col items-center">
+                <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200 mb-6 relative group">
+                  <div className="absolute inset-0 bg-emerald-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <QRCodeSVG value={WALLET_ADDRESS} size={200} level="H" includeMargin={false} />
+                </div>
+
+                <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between mb-4 shadow-sm">
+                  <div className="overflow-hidden mr-4">
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Destination Address</p>
+                    <p className="font-mono text-sm text-slate-800 truncate">{WALLET_ADDRESS}</p>
+                  </div>
+                  <button 
+                    onClick={handleCopy}
+                    className="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl transition-colors flex-shrink-0"
+                  >
+                    {copied ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                  </button>
+                </div>
+
+                <div className="w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start space-x-3 text-left">
+                  <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <p className="text-sm font-bold text-blue-900 mb-1">Important Instructions</p>
+                    <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                      <li>Send only <strong>USDT</strong> to this address.</li>
+                      <li>Use the <strong>Polygon (MATIC)</strong> network.</li>
+                      <li>You can buy USDT via P2P on Binance or OKX using Alipay/WeChat, then withdraw here.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
