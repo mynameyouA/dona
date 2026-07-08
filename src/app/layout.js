@@ -1,4 +1,5 @@
 import { Outfit } from "next/font/google";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const outfit = Outfit({ subsets: ["latin"] });
@@ -13,6 +14,7 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${outfit.className} antialiased bg-slate-50`}>
         {children}
+        <SpeedInsights />
       </body>
     </html>
   );
