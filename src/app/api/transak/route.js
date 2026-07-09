@@ -55,7 +55,9 @@ export async function POST(request) {
     if (!sessionResponse.ok) {
       const sessionError = await sessionResponse.text();
       console.error("Transak Session Error:", sessionError);
-      return NextResponse.json({ error: `Transak API Error: ${sessionError}` }, { status: 500 });
+      return NextResponse.json({ 
+        error: `Transak API Error: ${sessionError}. Token extracted: ${accessToken ? 'Yes (' + accessToken.length + ' chars)' : 'No'}.` 
+      }, { status: 500 });
     }
 
     const sessionData = await sessionResponse.json();
