@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet, Loader2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Dynamically import to prevent SSR issues with Three.js
@@ -17,6 +17,7 @@ export default function DonationSection() {
   // Modal states: 'hidden', 'select', 'qr'
   const [modalState, setModalState] = useState('hidden');
   const [copied, setCopied] = useState(false);
+  const [isLoadingOnramp, setIsLoadingOnramp] = useState(false);
   
   const WALLET_ADDRESS = "0x52b4483e30243a65212adb16d993627534e61d6d";
   const TREE_PRICE = 10;
@@ -29,12 +30,28 @@ export default function DonationSection() {
     }
   };
 
-  const handleOnramperRedirect = () => {
-    // Redirect to Onramper widget with the provided public API Key
-    const ONRAMPER_API_KEY = "pk_test_01KX2SH1NENEVVTEZ5C34HZAFJ";
-    const onramperUrl = `https://buy.onramper.com/?apiKey=${ONRAMPER_API_KEY}&defaultCrypto=USDT&defaultFiat=USD&wallets=USDT:polygon:${WALLET_ADDRESS}&supportSell=false`;
-    window.open(onramperUrl, '_blank');
-    setModalState('hidden');
+  const handleOnramperRedirect = async () => {
+    setIsLoadingOnramp(true);
+    try {
+      const res = await fetch('/api/onramper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ walletAddress: WALLET_ADDRESS })
+      });
+      const data = await res.json();
+      
+      if (data.widgetUrl) {
+        window.open(data.widgetUrl, '_blank');
+        setModalState('hidden');
+      } else {
+        alert('Lỗi tạo link Onramper: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while connecting to Onramper.');
+    } finally {
+      setIsLoadingOnramp(false);
+    }
   };
 
   const handleCopy = () => {
@@ -192,15 +209,16 @@ export default function DonationSection() {
                     {/* Onramper Button */}
                     <button 
                       onClick={handleOnramperRedirect}
-                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group"
+                      disabled={isLoadingOnramp}
+                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group disabled:opacity-70 disabled:cursor-wait"
                     >
                       <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                        <CreditCard className="w-6 h-6" />
+                        {isLoadingOnramp ? <Loader2 className="w-6 h-6 animate-spin" /> : <CreditCard className="w-6 h-6" />}
                       </div>
                       <div className="text-left flex-1">
                         <h4 className="font-bold text-slate-900 text-lg">Credit Card / Apple Pay</h4>
                         <p className="text-sm text-slate-500 font-medium">
-                          Pay with Fiat via Onramper
+                          {isLoadingOnramp ? 'Đang tạo link bảo mật...' : 'Pay with Fiat via Onramper'}
                         </p>
                       </div>
                       <ArrowRight className="w-5 h-5 text-emerald-500" />
