@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Dynamically import to prevent SSR issues with Three.js
@@ -13,18 +13,28 @@ export default function DonationSection() {
   const [tier, setTier] = useState(1);
   const [isCustom, setIsCustom] = useState(false);
   const [customAmount, setCustomAmount] = useState(50);
-  const [showQRModal, setShowQRModal] = useState(false);
+  
+  // Modal states: 'hidden', 'select', 'qr'
+  const [modalState, setModalState] = useState('hidden');
   const [copied, setCopied] = useState(false);
   
   const WALLET_ADDRESS = "0x52b4483e30243a65212adb16d993627534e61d6d";
+  const TRANSAK_API_KEY = "c594d4a2-91c4-4dd0-9527-be1f348894a1";
   const TREE_PRICE = 10;
 
   const currentAmount = isCustom ? customAmount : (tier * TREE_PRICE).toString();
 
   const handleDonateClick = () => {
     if (currentAmount && Number(currentAmount) >= TREE_PRICE) {
-      setShowQRModal(true);
+      setModalState('select');
     }
+  };
+
+  const handleTransakRedirect = () => {
+    // Redirect to Transak with API Key
+    const transakUrl = `https://global.transak.com/?apiKey=${TRANSAK_API_KEY}&cryptoCurrencyCode=USDT&network=polygon&fiatCurrency=CNY&walletAddress=${WALLET_ADDRESS}`;
+    window.open(transakUrl, '_blank');
+    setModalState('hidden'); // Close modal after opening transak
   };
 
   const handleCopy = () => {
@@ -145,15 +155,15 @@ export default function DonationSection() {
         </motion.div>
       </div>
 
-      {/* Web3 QR Payment Modal */}
+      {/* Payment Modal */}
       <AnimatePresence>
-        {showQRModal && (
+        {modalState !== 'hidden' && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowQRModal(false)}
+              onClick={() => setModalState('hidden')}
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
             ></motion.div>
             
@@ -164,48 +174,102 @@ export default function DonationSection() {
               className="bg-white rounded-[2rem] shadow-2xl w-full max-w-md relative z-10 overflow-hidden border border-slate-100"
             >
               <button 
-                onClick={() => setShowQRModal(false)}
-                className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors"
+                onClick={() => setModalState('hidden')}
+                className="absolute top-4 right-4 p-2 bg-slate-100 hover:bg-slate-200 rounded-full text-slate-500 transition-colors z-20"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="p-8 text-center border-b border-slate-100">
-                <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Web3 Transfer</h3>
-                <p className="text-slate-500 font-medium text-sm">Direct, secure, and 100% transparent.</p>
-              </div>
-
-              <div className="p-8 bg-slate-50 flex flex-col items-center">
-                <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200 mb-6 relative group">
-                  <div className="absolute inset-0 bg-emerald-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <QRCodeSVG value={WALLET_ADDRESS} size={200} level="H" includeMargin={false} />
-                </div>
-
-                <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between mb-4 shadow-sm">
-                  <div className="overflow-hidden mr-4">
-                    <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Destination Address</p>
-                    <p className="font-mono text-sm text-slate-800 truncate">{WALLET_ADDRESS}</p>
+              {/* STEP 1: Select Payment Method */}
+              {modalState === 'select' && (
+                <div>
+                  <div className="p-8 text-center border-b border-slate-100">
+                    <h3 className="text-2xl font-extrabold text-slate-900 mb-2">Payment Method</h3>
+                    <p className="text-slate-500 font-medium text-sm">Select how you'd like to fund your impact.</p>
                   </div>
-                  <button 
-                    onClick={handleCopy}
-                    className="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl transition-colors flex-shrink-0"
-                  >
-                    {copied ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
-                  </button>
-                </div>
+                  <div className="p-8 bg-slate-50 flex flex-col space-y-4">
+                    
+                    {/* Transak Button */}
+                    <button 
+                      onClick={handleTransakRedirect}
+                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group"
+                    >
+                      <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
+                        <CreditCard className="w-6 h-6" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <h4 className="font-bold text-slate-900 text-lg">Alipay / Card</h4>
+                        <p className="text-sm text-slate-500 font-medium">Pay with fiat via Transak</p>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-emerald-500" />
+                    </button>
 
-                <div className="w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start space-x-3 text-left">
-                  <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-bold text-blue-900 mb-1">Important Instructions</p>
-                    <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
-                      <li>Send only <strong>USDT</strong> to this address.</li>
-                      <li>Use the <strong>Polygon (MATIC)</strong> network.</li>
-                      <li>You can buy USDT via P2P on Binance or OKX using Alipay/WeChat, then withdraw here.</li>
-                    </ul>
+                    {/* Web3 QR Button */}
+                    <button 
+                      onClick={() => setModalState('qr')}
+                      className="w-full flex items-center p-5 bg-white border-2 border-slate-200 rounded-2xl hover:border-blue-500 hover:bg-blue-50 transition-colors shadow-sm group"
+                    >
+                      <div className="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center mr-4 group-hover:bg-blue-100 group-hover:text-blue-600 transition-colors">
+                        <Wallet className="w-6 h-6" />
+                      </div>
+                      <div className="text-left flex-1">
+                        <h4 className="font-bold text-slate-900 text-lg">Web3 Wallet</h4>
+                        <p className="text-sm text-slate-500 font-medium">Direct crypto transfer</p>
+                      </div>
+                      <ArrowRight className="w-5 h-5 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                    </button>
+
                   </div>
                 </div>
-              </div>
+              )}
+
+              {/* STEP 2: Web3 QR Code */}
+              {modalState === 'qr' && (
+                <div>
+                  <div className="p-8 text-center border-b border-slate-100 relative">
+                    <button 
+                      onClick={() => setModalState('select')}
+                      className="absolute top-8 left-6 text-slate-400 hover:text-slate-600 font-medium text-sm flex items-center"
+                    >
+                      ← Back
+                    </button>
+                    <h3 className="text-2xl font-extrabold text-slate-900 mb-2 mt-4">Web3 Transfer</h3>
+                    <p className="text-slate-500 font-medium text-sm">Direct, secure, and 100% transparent.</p>
+                  </div>
+
+                  <div className="p-8 bg-slate-50 flex flex-col items-center">
+                    <div className="p-4 bg-white rounded-3xl shadow-sm border border-slate-200 mb-6 relative group">
+                      <div className="absolute inset-0 bg-emerald-500/10 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                      <QRCodeSVG value={WALLET_ADDRESS} size={200} level="H" includeMargin={false} />
+                    </div>
+
+                    <div className="w-full bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between mb-4 shadow-sm">
+                      <div className="overflow-hidden mr-4">
+                        <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Destination Address</p>
+                        <p className="font-mono text-sm text-slate-800 truncate">{WALLET_ADDRESS}</p>
+                      </div>
+                      <button 
+                        onClick={handleCopy}
+                        className="p-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-600 rounded-xl transition-colors flex-shrink-0"
+                      >
+                        {copied ? <CheckCircle2 className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                      </button>
+                    </div>
+
+                    <div className="w-full bg-blue-50 border border-blue-100 rounded-2xl p-4 flex items-start space-x-3 text-left">
+                      <Info className="w-5 h-5 text-blue-500 flex-shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-bold text-blue-900 mb-1">Important Instructions</p>
+                        <ul className="text-sm text-blue-700 space-y-1 list-disc list-inside">
+                          <li>Send only <strong>USDT</strong> to this address.</li>
+                          <li>Use the <strong>Polygon (MATIC)</strong> network.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
             </motion.div>
           </div>
         )}
