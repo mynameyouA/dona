@@ -1,8 +1,11 @@
 'use client';
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { motion } from 'framer-motion';
 import { Globe, Droplets, Users } from 'lucide-react';
+
+const FloatingLeaves3D = dynamic(() => import('./FloatingLeaves3D'), { ssr: false });
 
 export default function ContentSections() {
   const fadeIn = {
@@ -11,9 +14,12 @@ export default function ContentSections() {
   };
 
   return (
-    <div className="relative z-10 bg-slate-50">
+    <div className="relative z-10 bg-slate-50 overflow-hidden">
+      {/* Floating 3D Background */}
+      <FloatingLeaves3D />
+
       {/* Mission Section */}
-      <section id="mission" className="py-24 px-6 lg:px-8 border-b border-slate-200">
+      <section id="mission" className="py-24 px-6 lg:px-8 border-b border-slate-200 relative z-10">
         <div className="max-w-6xl mx-auto">
           <motion.div 
             initial="hidden"
