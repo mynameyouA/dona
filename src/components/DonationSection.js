@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet, Loader2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Dynamically import to prevent SSR issues with Three.js
@@ -17,9 +17,9 @@ export default function DonationSection() {
   // Modal states: 'hidden', 'select', 'qr'
   const [modalState, setModalState] = useState('hidden');
   const [copied, setCopied] = useState(false);
+  const [isLoadingTransak, setIsLoadingTransak] = useState(false);
   
   const WALLET_ADDRESS = "0x52b4483e30243a65212adb16d993627534e61d6d";
-  const TRANSAK_API_KEY = "c594d4a2-91c4-4dd0-9527-be1f348894a1";
   const TREE_PRICE = 10;
 
   const currentAmount = isCustom ? customAmount : (tier * TREE_PRICE).toString();
@@ -30,11 +30,28 @@ export default function DonationSection() {
     }
   };
 
-  const handleTransakRedirect = () => {
-    // Redirect to Transak with API Key
-    const transakUrl = `https://global.transak.com/?apiKey=${TRANSAK_API_KEY}&cryptoCurrencyCode=USDT&network=polygon&fiatCurrency=CNY&walletAddress=${WALLET_ADDRESS}`;
-    window.open(transakUrl, '_blank');
-    setModalState('hidden'); // Close modal after opening transak
+  const handleTransakRedirect = async () => {
+    setIsLoadingTransak(true);
+    try {
+      const res = await fetch('/api/transak', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: currentAmount })
+      });
+      const data = await res.json();
+      
+      if (data.widgetUrl) {
+        window.open(data.widgetUrl, '_blank');
+        setModalState('hidden');
+      } else {
+        alert('Could not connect to Transak: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Network error while connecting to Transak.');
+    } finally {
+      setIsLoadingTransak(false);
+    }
   };
 
   const handleCopy = () => {
@@ -192,14 +209,17 @@ export default function DonationSection() {
                     {/* Transak Button */}
                     <button 
                       onClick={handleTransakRedirect}
-                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group"
+                      disabled={isLoadingTransak}
+                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group disabled:opacity-70 disabled:cursor-wait"
                     >
                       <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                        <CreditCard className="w-6 h-6" />
+                        {isLoadingTransak ? <Loader2 className="w-6 h-6 animate-spin" /> : <CreditCard className="w-6 h-6" />}
                       </div>
                       <div className="text-left flex-1">
                         <h4 className="font-bold text-slate-900 text-lg">Alipay / Card</h4>
-                        <p className="text-sm text-slate-500 font-medium">Pay with fiat via Transak</p>
+                        <p className="text-sm text-slate-500 font-medium">
+                          {isLoadingTransak ? 'Connecting securely...' : 'Pay with fiat via Transak'}
+                        </p>
                       </div>
                       <ArrowRight className="w-5 h-5 text-emerald-500" />
                     </button>
