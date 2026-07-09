@@ -1,4 +1,5 @@
 import Hero from '@/components/Hero';
+import TrustSection from '@/components/TrustSection';
 import ContentSections from '@/components/ContentSections';
 import GrowthJourney from '@/components/GrowthJourney';
 import DonationSection from '@/components/DonationSection';
@@ -24,6 +25,8 @@ export default function Home() {
       {/* Main Content */}
       <Hero />
       
+      <TrustSection />
+
       <ContentSections />
 
       <GrowthJourney />
