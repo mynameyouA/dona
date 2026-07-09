@@ -47,7 +47,7 @@ export async function POST(request) {
           network: 'polygon',
           fiatCurrency: 'CNY',
           walletAddress: walletAddress,
-          // Optional: defaultFiatAmount: amount // We can pass the fiat amount if supported
+          referrerDomain: "https://dona-theta-seven.vercel.app"
         }
       })
     });
