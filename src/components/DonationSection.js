@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet, Loader2 } from 'lucide-react';
+import { ArrowRight, ShieldCheck, Copy, CheckCircle2, X, Info, CreditCard, Wallet } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
 // Dynamically import to prevent SSR issues with Three.js
@@ -17,7 +17,6 @@ export default function DonationSection() {
   // Modal states: 'hidden', 'select', 'qr'
   const [modalState, setModalState] = useState('hidden');
   const [copied, setCopied] = useState(false);
-  const [isLoadingTransak, setIsLoadingTransak] = useState(false);
   
   const WALLET_ADDRESS = "0x52b4483e30243a65212adb16d993627534e61d6d";
   const TREE_PRICE = 10;
@@ -30,28 +29,12 @@ export default function DonationSection() {
     }
   };
 
-  const handleTransakRedirect = async () => {
-    setIsLoadingTransak(true);
-    try {
-      const res = await fetch('/api/transak', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: currentAmount })
-      });
-      const data = await res.json();
-      
-      if (data.widgetUrl) {
-        window.open(data.widgetUrl, '_blank');
-        setModalState('hidden');
-      } else {
-        alert('Could not connect to Transak: ' + (data.error || 'Unknown error'));
-      }
-    } catch (err) {
-      console.error(err);
-      alert('Network error while connecting to Transak.');
-    } finally {
-      setIsLoadingTransak(false);
-    }
+  const handleWertRedirect = () => {
+    // Redirect to Wert.io widget (No API Key or KYC needed for merchant)
+    // We pass the commodity (USDT), network (polygon), and the destination wallet address.
+    const wertUrl = `https://widget.wert.io/default/widget/?commodity=USDT&network=polygon&address=${WALLET_ADDRESS}`;
+    window.open(wertUrl, '_blank');
+    setModalState('hidden');
   };
 
   const handleCopy = () => {
@@ -206,19 +189,18 @@ export default function DonationSection() {
                   </div>
                   <div className="p-8 bg-slate-50 flex flex-col space-y-4">
                     
-                    {/* Transak Button */}
+                    {/* Wert Button */}
                     <button 
-                      onClick={handleTransakRedirect}
-                      disabled={isLoadingTransak}
-                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group disabled:opacity-70 disabled:cursor-wait"
+                      onClick={handleWertRedirect}
+                      className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group"
                     >
                       <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                        {isLoadingTransak ? <Loader2 className="w-6 h-6 animate-spin" /> : <CreditCard className="w-6 h-6" />}
+                        <CreditCard className="w-6 h-6" />
                       </div>
                       <div className="text-left flex-1">
-                        <h4 className="font-bold text-slate-900 text-lg">Alipay / Card</h4>
+                        <h4 className="font-bold text-slate-900 text-lg">Credit Card / Apple Pay</h4>
                         <p className="text-sm text-slate-500 font-medium">
-                          {isLoadingTransak ? 'Connecting securely...' : 'Pay with fiat via Transak'}
+                          Pay with Fiat via Wert.io
                         </p>
                       </div>
                       <ArrowRight className="w-5 h-5 text-emerald-500" />
