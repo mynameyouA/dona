@@ -29,11 +29,11 @@ export default function DonationSection() {
     }
   };
 
-  const handleWertRedirect = () => {
-    // Redirect to Wert.io widget (No API Key or KYC needed for merchant)
-    // We pass the commodity (USDT), network (polygon), and the destination wallet address.
-    const wertUrl = `https://widget.wert.io/default/widget/?commodity=USDT&network=polygon&address=${WALLET_ADDRESS}`;
-    window.open(wertUrl, '_blank');
+  const handleOnramperRedirect = () => {
+    // Redirect to Onramper widget with the provided public API Key
+    const ONRAMPER_API_KEY = "pk_test_01KX2SH1NENEVVTEZ5C34HZAFJ";
+    const onramperUrl = `https://buy.onramper.com/?apiKey=${ONRAMPER_API_KEY}&defaultCrypto=USDT&defaultFiat=USD&wallets=USDT:polygon:${WALLET_ADDRESS}&supportSell=false`;
+    window.open(onramperUrl, '_blank');
     setModalState('hidden');
   };
 
@@ -189,9 +189,9 @@ export default function DonationSection() {
                   </div>
                   <div className="p-8 bg-slate-50 flex flex-col space-y-4">
                     
-                    {/* Wert Button */}
+                    {/* Onramper Button */}
                     <button 
-                      onClick={handleWertRedirect}
+                      onClick={handleOnramperRedirect}
                       className="w-full flex items-center p-5 bg-white border-2 border-emerald-500 rounded-2xl hover:bg-emerald-50 transition-colors shadow-sm group"
                     >
                       <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
@@ -200,7 +200,7 @@ export default function DonationSection() {
                       <div className="text-left flex-1">
                         <h4 className="font-bold text-slate-900 text-lg">Credit Card / Apple Pay</h4>
                         <p className="text-sm text-slate-500 font-medium">
-                          Pay with Fiat via Wert.io
+                          Pay with Fiat via Onramper
                         </p>
                       </div>
                       <ArrowRight className="w-5 h-5 text-emerald-500" />
